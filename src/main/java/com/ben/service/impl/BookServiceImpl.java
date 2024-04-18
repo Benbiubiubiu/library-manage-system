@@ -1,0 +1,60 @@
+package com.ben.service.impl;
+
+import com.ben.mapper.BookMapper;
+import com.ben.pojo.Book;
+import com.ben.pojo.Borrow;
+import com.ben.service.BookService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+public class BookServiceImpl implements BookService {
+    @Resource
+    BookMapper mapper;
+
+    @Override
+    public void addBorrow(int sid, int bid) {
+        mapper.addBorrow(sid,bid);
+    }
+
+    @Override
+    public void returnBook(int id) {
+        mapper.returnBook(id);
+    }
+
+    @Override
+    public List<Borrow> getBorrowList() {
+        return mapper.getBorrowList();
+    }
+
+    @Override
+    public Map<Book,Boolean> getBookList() {
+        Set<Integer> set = new HashSet<>();
+        this.getBorrowList().forEach(borrow -> set.add(borrow.getId()));
+        LinkedHashMap<Book, Boolean> map = new LinkedHashMap<>();
+        mapper.getBookList().forEach(book -> map.put(book,set.contains(book.getId())));
+        return map;
+    }
+
+    @Override
+    public List<Book> getActiveBookList() {
+        Set<Integer> set = new HashSet<>();
+        this.getBorrowList().forEach(borrow -> set.add(borrow.getBid()));
+        return mapper.getBookList()
+                .stream()
+                .filter(book -> !set.contains(book.getId()))
+                .toList();
+    }
+
+    @Override
+    public void addBook(String title, String desc, double price) {
+        mapper.addBook(title,desc,price);
+    }
+
+    @Override
+    public void deleteBook(int id) {
+        mapper.deleteBook(id);
+    }
+}
